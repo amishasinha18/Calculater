@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Calculator</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; background: #0f172a; color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; padding: 20px;
+    }
+
+    .calculator {
+      background: #1e293b; padding: 20px; border-radius: 20px;
+      width: 100%; max-width: 350px;
+      box-shadow: 0 0 20px rgba(56,189,248,0.3);
+    }
+
+    .history {
+      text-align: right; font-size: 0.9em; color: #94a3b8; height: 20px;
+    }
+
+    .display {
+      text-align: right; background: #0f172a; color: #38bdf8;
+      padding: 15px; font-size: 2em; border-radius: 10px;
+      margin: 10px 0; overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid; gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    button {
+      padding: 15px; font-size: 1.1em;
+      border: none; border-radius: 10px;
+      background: #334155; color: #fff; cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover, button:focus {
+      background: #38bdf8; color: #0f172a;
+      outline: none;
+    }
+
+    .equal { background: #38bdf8; color: #0f172a; }
+    .clear { background: #f87171; }
+    .back { background: #fbbf24; }
+
+    button.active {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <div id="history" class="history"></div>
+  <div id="display" class="display">0</div>
+
+  <div class="buttons">
+    <button class="clear" onclick="clearDisplay()">C</button>
+    <button class="back" onclick="backspace()">⌫</button>
+    <button onclick="append('/')">÷</button>
+    <button onclick="append('*')">×</button>
+
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button onclick="append('-')">−</button>
+
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button onclick="append('+')">+</button>
+
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+    <button class="equal" style="grid-row: span 2;" onclick="calculate()">=</button>
+
+    <button onclick="append('0')" style="grid-column: span 2;">0</button>
+    <button onclick="append('.')">.</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const history = document.getElementById('history');
+
+  function append(val) {
+    const text = display.innerText;
+    if (text === '0' || text === 'Error') {
+      if (val === '.' || isOperator(val)) return;
+      display.innerText = val;
+    } else {
+      if (val === '.' && lastNumberHasDot()) return;
+      if (isOperator(val) && isOperator(text.slice(-1))) return;
+      display.innerText += val;
+    }
+  }
+
+  function calculate() {
+    try {
+      const expr = display.innerText;
+      const result = eval(expr);
+      if (isNaN(result) || !isFinite(result)) throw "Invalid";
+      history.innerText = expr;
+      display.innerText = result;
+    } catch {
+      display.innerText = 'Error';
+    }
+  }
+
+  function clearDisplay() {
+    display.innerText = '0';
+    history.innerText = '';
+  }
+
+  function backspace() {
+    const text = display.innerText;
+    display.innerText = text.length > 1 ? text.slice(0, -1) : '0';
+  }
+
+  function isOperator(c) {
+    return ['+', '-', '*', '/'].includes(c);
+  }
+
+  function lastNumberHasDot() {
+    const parts = display.innerText.split(/[\+\-\*\/]/);
+    return parts.at(-1).includes('.');
+  }
+
+  document.addEventListener('keydown', e => {
+    const key = e.key;
+    if ("0123456789+-*/.".includes(key)) {
+      append(key);
+      highlightKey(key);
+    }
+    else if (key === 'Enter') {
+      calculate();
+      highlightKey('=');
+    }
+    else if (key === 'Backspace') {
+      backspace();
+      highlightKey('⌫');
+    }
+    else if (key.toLowerCase() === 'c') {
+      clearDisplay();
+      highlightKey('C');
+    }
+  });
+
+  function highlightKey(keyLabel) {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => {
+      if (btn.innerText === keyLabel || (keyLabel === '=' && btn.innerText === '=')) {
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 150);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
