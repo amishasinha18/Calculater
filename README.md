@@ -15,9 +15,18 @@ It combines a clean everyday calculator with a full scientific mode, persistent 
 
 ## 📸 Screenshot / Preview
 
-| Normal Mode | Scientific Mode |
-|:---:|:---:|
-| ![Smart Calculator — Normal mode](https://i.ibb.co/QF1SxXtR/Screenshot-2026-07-23-021346.png) | ![Smart Calculator — Scientific mode](https://i.ibb.co/kNSXNtq/Screenshot-2026-07-23-021447.png) |
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://i.ibb.co/QF1SxXtR/Screenshot-2026-07-23-021346.png" width="380" alt="Smart Calculator — Desktop view of the calculator interface" /><br />
+      <sub><b>Desktop View — Calculator Interface</b></sub>
+    </td>
+    <td align="center">
+      <img src="https://i.ibb.co/kNSXNtq/Screenshot-2026-07-23-021447.png" width="380" alt="Smart Calculator — Scientific mode with history panel" /><br />
+      <sub><b>Scientific Mode & History</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
