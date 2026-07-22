@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Segoe UI', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            glow: '0 0 17px rgba(56,189,248,0.14)',
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen m-0 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans p-4">
+
+<div id="calculatorCard" class="calculator w-full max-w-sm bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-glow border border-white/10 p-6 transition-[max-width] duration-300 ease-out">
+
+  <h1 class="text-slate-300 text-sm font-semibold tracking-wide uppercase text-center mb-3">Smart Calculator</h1>
+
+  <!-- Mode segmented control -->
+  <div class="relative grid grid-cols-2 bg-slate-950/50 backdrop-blur border border-white/10 rounded-full p-1 mb-3" role="tablist" aria-label="Calculator mode">
+    <div id="modeThumb" class="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-sky-400 to-cyan-400 shadow-[0_0_16px_rgba(56,189,248,0.55)] transition-transform duration-300 ease-out"></div>
+    <button id="modeNormalBtn" onclick="setMode('normal')" role="tab" aria-selected="true" class="relative z-10 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-300 text-slate-950">Normal</button>
+    <button id="modeSciBtn" onclick="setMode('scientific')" role="tab" aria-selected="false" class="relative z-10 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-300 text-slate-400 hover:text-slate-200">Scientific</button>
+  </div>
+
+  <!-- Display -->
+  <div title="Click result to copy" class="bg-slate-950/60 border border-white/10 rounded-2xl px-5 py-6 my-3 shadow-inner shadow-black/30">
+    <div id="history" class="text-right text-xs tracking-wide text-slate-500 h-4 truncate font-mono"></div>
+    <input id="display" type="text" inputmode="decimal" readonly value="0" aria-label="Calculator display" class="result-glow no-spinner w-full text-right text-sky-400 text-4xl font-bold mt-2 overflow-x-auto whitespace-nowrap cursor-pointer transition-opacity hover:opacity-80 font-mono bg-transparent border-0 outline-none p-0" onclick="copyValue(display.value, display)" />
+  </div>
+
+  <!-- Scientific drawer -->
+  <div id="sciDrawer" class="grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-300 ease-in-out">
+   <div class="overflow-hidden">
+    <div class="flex items-center justify-between mb-2.5 mt-1">
+      <span class="text-slate-400 text-[11px] font-semibold uppercase tracking-wide">Scientific Functions</span>
+      <div class="relative grid grid-cols-2 w-24 bg-slate-950/50 border border-white/10 rounded-full p-0.5" role="tablist" aria-label="Angle unit">
+        <div id="angleThumb" class="absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-sky-400 transition-transform duration-300 ease-out"></div>
+        <button id="degBtn" onclick="setAngleMode('deg')" class="relative z-10 py-1 text-[10px] font-semibold uppercase transition-colors duration-300 text-slate-950">Deg</button>
+        <button id="radBtn" onclick="setAngleMode('rad')" class="relative z-10 py-1 text-[10px] font-semibold uppercase transition-colors duration-300 text-slate-400">Rad</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-3 pb-3">
+      <!-- Trigonometric + Logarithmic -->
+      <button onclick="unarySin()" class="calc-btn sci-btn">sin</button>
+      <button onclick="unaryCos()" class="calc-btn sci-btn">cos</button>
+      <button onclick="unaryTan()" class="calc-btn sci-btn">tan</button>
+      <button onclick="unaryAsin()" class="calc-btn sci-btn">asin</button>
+
+      <button onclick="unaryAcos()" class="calc-btn sci-btn">acos</button>
+      <button onclick="unaryAtan()" class="calc-btn sci-btn">atan</button>
+      <button onclick="unaryLog()" class="calc-btn sci-btn">log</button>
+      <button onclick="unaryLn()" class="calc-btn sci-btn">ln</button>
+
+      <div class="col-span-4 border-t border-white/5 -my-0.5"></div>
+
+      <!-- Power -->
+      <button onclick="unarySqrt()" class="calc-btn sci-btn">√</button>
+      <button onclick="unarySquare()" class="calc-btn sci-btn">x²</button>
+      <button id="btnPower" onclick="append('^')" class="calc-btn sci-btn">x<sup>y</sup></button>
+      <button onclick="unaryRecip()" class="calc-btn sci-btn">1/x</button>
+
+      <div class="col-span-4 border-t border-white/5 -my-0.5"></div>
+
+      <!-- Constants -->
+      <button onclick="appendConstant('π')" class="calc-btn sci-btn">π</button>
+      <button onclick="appendConstant('e')" class="calc-btn sci-btn">e</button>
+      <button onclick="unaryFactorial()" class="calc-btn sci-btn">x!</button>
+      <button id="sciParenKey" onclick="insertParen()" class="calc-btn sci-btn">( )</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- Normal keypad -->
+  <div class="grid grid-cols-4 gap-3">
+    <button onclick="clearDisplay()" class="calc-btn danger-btn">AC</button>
+    <button onclick="backspace()" class="calc-btn warn-btn">DEL</button>
+    <button onclick="percent()" class="calc-btn op-btn">%</button>
+    <button onclick="append('/')" class="calc-btn op-btn">÷</button>
+
+    <button onclick="append('7')" class="calc-btn num-btn">7</button>
+    <button onclick="append('8')" class="calc-btn num-btn">8</button>
+    <button onclick="append('9')" class="calc-btn num-btn">9</button>
+    <button onclick="append('*')" class="calc-btn op-btn">×</button>
+
+    <button onclick="append('4')" class="calc-btn num-btn">4</button>
+    <button onclick="append('5')" class="calc-btn num-btn">5</button>
+    <button onclick="append('6')" class="calc-btn num-btn">6</button>
+    <button onclick="append('-')" class="calc-btn op-btn">−</button>
+
+    <button onclick="append('1')" class="calc-btn num-btn">1</button>
+    <button onclick="append('2')" class="calc-btn num-btn">2</button>
+    <button onclick="append('3')" class="calc-btn num-btn">3</button>
+    <button onclick="append('+')" class="calc-btn op-btn">+</button>
+
+    <button onclick="append('0')" class="calc-btn num-btn col-span-2">0</button>
+    <button onclick="append('.')" class="calc-btn num-btn">.</button>
+    <button onclick="calculate()" class="calc-btn equal-btn">=</button>
+  </div>
+
+  <!-- Collapsible history -->
+  <div class="mt-4">
+    <button onclick="toggleHistoryPanel()" class="w-full flex items-center justify-between text-left">
+      <span class="text-slate-400 text-xs font-semibold uppercase tracking-wide">History</span>
+      <svg id="historyChevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+    </button>
+    <div id="historyPanel" class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 ease-in-out">
+      <div class="flex justify-end pt-2 pb-1">
+        <button onclick="clearHistory()" class="text-[11px] text-slate-400 hover:text-red-300 transition-colors">Clear all</button>
+      </div>
+      <div id="historyList" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 text-sm"></div>
+    </div>
+  </div>
+
+  <p class="text-center text-slate-500/70 text-[11px] tracking-wide mt-5">Built by AS</p>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
+

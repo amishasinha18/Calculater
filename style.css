@@ -1,0 +1,90 @@
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.calculator {
+  animation: card-in 0.5s ease-out;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.calc-btn {
+  padding: 1rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-radius: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.25s ease-in-out, background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, color 0.25s ease-in-out;
+}
+.calc-btn:hover { transform: translateY(-1px) scale(1.04); }
+.calc-btn:active { transform: scale(0.96); }
+
+.result-glow {
+  text-shadow: 0 0 14px rgba(56,189,248,0.35);
+}
+
+.num-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #f1f5f9;
+}
+.num-btn:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 14px rgba(255,255,255,0.12); }
+
+.op-btn {
+  background: rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.3);
+  color: #7dd3fc;
+}
+.op-btn:hover { background: #38bdf8; color: #020617; box-shadow: 0 0 16px rgba(56,189,248,0.5); }
+
+.danger-btn {
+  background: rgba(248,113,113,0.15);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: #fca5a5;
+}
+.danger-btn:hover { background: #f87171; color: #020617; box-shadow: 0 0 16px rgba(248,113,113,0.5); }
+
+.warn-btn {
+  background: rgba(251,191,36,0.15);
+  border: 1px solid rgba(251,191,36,0.3);
+  color: #fcd34d;
+}
+.warn-btn:hover { background: #fbbf24; color: #020617; box-shadow: 0 0 16px rgba(251,191,36,0.5); }
+
+.equal-btn {
+  color: #020617;
+  font-weight: 700;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, #38bdf8, #22d3ee);
+  border: 1px solid rgba(125,211,252,0.5);
+  box-shadow: 0 0 18px rgba(56,189,248,0.4);
+}
+.equal-btn:hover {
+  animation: equal-pulse 1.6s ease-in-out infinite;
+}
+@keyframes equal-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(56,189,248,0.55); }
+  50% { box-shadow: 0 0 30px rgba(56,189,248,0.85); }
+}
+
+.sci-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #f1f5f9;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+}
+.sci-btn:hover { background: rgba(56,189,248,0.85); color: #020617; box-shadow: 0 0 14px rgba(56,189,248,0.45); }
+
+@media (prefers-reduced-motion: reduce) {
+  .calculator { animation: none; }
+  .equal-btn:hover { animation: none; }
+}
