@@ -33,7 +33,7 @@ It combines a clean everyday calculator with a full scientific mode, persistent 
 No installation, build tools, or dependencies are required.
 
 1. Clone or download this repository.
-2. Open `task.1.html` directly in any modern browser (Chrome, Firefox, Edge, Safari).
+2. Open `index.html` directly in any modern browser (Chrome, Firefox, Edge, Safari).
 
 That's it — the calculator runs entirely client-side.
 
