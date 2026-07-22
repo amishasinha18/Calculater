@@ -15,12 +15,9 @@ It combines a clean everyday calculator with a full scientific mode, persistent 
 
 ## 📸 Screenshot / Preview
 
-<!--
-  Add a screenshot or short GIF of the calculator here, e.g.:
-  ![Smart Calculator preview](./screenshot.png)
--->
-
-*(Screenshot coming soon — open `index.html` in your browser for a live look in the meantime.)*
+| Normal Mode | Scientific Mode |
+|:---:|:---:|
+| ![Smart Calculator — Normal mode](https://i.ibb.co/QF1SxXtR/Screenshot-2026-07-23-021346.png) | ![Smart Calculator — Scientific mode](https://i.ibb.co/kNSXNtq/Screenshot-2026-07-23-021447.png) |
 
 ---
 
