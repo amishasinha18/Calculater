@@ -18,11 +18,11 @@ It combines a clean everyday calculator with a full scientific mode, persistent 
 <table align="center">
   <tr>
     <td align="center">
-      <img src="https://i.ibb.co/QF1SxXtR/Screenshot-2026-07-23-021346.png" width="380" alt="Smart Calculator — Desktop view of the calculator interface" /><br />
-      <sub><b>Desktop View — Calculator Interface</b></sub>
+      <img src="./screenshots/normal-mode.png" width="320" alt="Smart Calculator — Normal mode calculator interface" /><br />
+      <sub><b>Normal Mode — Calculator Interface</b></sub>
     </td>
     <td align="center">
-      <img src="https://i.ibb.co/kNSXNtq/Screenshot-2026-07-23-021447.png" width="380" alt="Smart Calculator — Scientific mode with history panel" /><br />
+      <img src="./screenshots/scientific-mode-history.png" width="320" alt="Smart Calculator — Scientific mode with history panel expanded" /><br />
       <sub><b>Scientific Mode & History</b></sub>
     </td>
   </tr>
