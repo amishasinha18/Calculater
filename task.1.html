@@ -4,142 +4,335 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Calculator</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0; background: #0f172a; color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; padding: 20px;
-    }
-
-    .calculator {
-      background: #1e293b; padding: 20px; border-radius: 20px;
-      width: 100%; max-width: 350px;
-      box-shadow: 0 0 20px rgba(56,189,248,0.3);
-    }
-
-    .history {
-      text-align: right; font-size: 0.9em; color: #94a3b8; height: 20px;
-    }
-
-    .display {
-      text-align: right; background: #0f172a; color: #38bdf8;
-      padding: 15px; font-size: 2em; border-radius: 10px;
-      margin: 10px 0; overflow-x: auto;
-    }
-
-    .buttons {
-      display: grid; gap: 10px;
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    button {
-      padding: 15px; font-size: 1.1em;
-      border: none; border-radius: 10px;
-      background: #334155; color: #fff; cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    button:hover, button:focus {
-      background: #38bdf8; color: #0f172a;
-      outline: none;
-    }
-
-    .equal { background: #38bdf8; color: #0f172a; }
-    .clear { background: #f87171; }
-    .back { background: #fbbf24; }
-
-    button.active {
-      transform: scale(1.05);
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Segoe UI', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            glow: '0 0 17px rgba(56,189,248,0.14)',
+          },
+        },
+      },
+    };
+  </script>
 </head>
-<body>
+<body class="min-h-screen m-0 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans p-4">
 
-<div class="calculator">
-  <div id="history" class="history"></div>
-  <div id="display" class="display">0</div>
+<div id="calculatorCard" class="calculator w-full max-w-sm bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-glow border border-white/10 p-6 transition-[max-width] duration-300 ease-out">
 
-  <div class="buttons">
-    <button class="clear" onclick="clearDisplay()">C</button>
-    <button class="back" onclick="backspace()">⌫</button>
-    <button onclick="append('/')">÷</button>
-    <button onclick="append('*')">×</button>
+  <h1 class="text-slate-300 text-sm font-semibold tracking-wide uppercase text-center mb-3">Smart Calculator</h1>
 
-    <button onclick="append('7')">7</button>
-    <button onclick="append('8')">8</button>
-    <button onclick="append('9')">9</button>
-    <button onclick="append('-')">−</button>
-
-    <button onclick="append('4')">4</button>
-    <button onclick="append('5')">5</button>
-    <button onclick="append('6')">6</button>
-    <button onclick="append('+')">+</button>
-
-    <button onclick="append('1')">1</button>
-    <button onclick="append('2')">2</button>
-    <button onclick="append('3')">3</button>
-    <button class="equal" style="grid-row: span 2;" onclick="calculate()">=</button>
-
-    <button onclick="append('0')" style="grid-column: span 2;">0</button>
-    <button onclick="append('.')">.</button>
+  <!-- Mode segmented control -->
+  <div class="relative grid grid-cols-2 bg-slate-950/50 backdrop-blur border border-white/10 rounded-full p-1 mb-3" role="tablist" aria-label="Calculator mode">
+    <div id="modeThumb" class="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-sky-400 to-cyan-400 shadow-[0_0_16px_rgba(56,189,248,0.55)] transition-transform duration-300 ease-out"></div>
+    <button id="modeNormalBtn" onclick="setMode('normal')" role="tab" aria-selected="true" class="relative z-10 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-300 text-slate-950">Normal</button>
+    <button id="modeSciBtn" onclick="setMode('scientific')" role="tab" aria-selected="false" class="relative z-10 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-300 text-slate-400 hover:text-slate-200">Scientific</button>
   </div>
+
+  <!-- Display -->
+  <div title="Click result to copy" class="bg-slate-950/60 border border-white/10 rounded-2xl px-5 py-6 my-3 shadow-inner shadow-black/30">
+    <div id="history" class="text-right text-xs tracking-wide text-slate-500 h-4 truncate font-mono"></div>
+    <input id="display" type="text" inputmode="decimal" readonly value="0" aria-label="Calculator display" class="result-glow no-spinner w-full text-right text-sky-400 text-4xl font-bold mt-2 overflow-x-auto whitespace-nowrap cursor-pointer transition-opacity hover:opacity-80 font-mono bg-transparent border-0 outline-none p-0" onclick="copyValue(display.value, display)" />
+  </div>
+
+  <!-- Scientific drawer -->
+  <div id="sciDrawer" class="grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-300 ease-in-out">
+   <div class="overflow-hidden">
+    <div class="flex items-center justify-between mb-2.5 mt-1">
+      <span class="text-slate-400 text-[11px] font-semibold uppercase tracking-wide">Scientific Functions</span>
+      <div class="relative grid grid-cols-2 w-24 bg-slate-950/50 border border-white/10 rounded-full p-0.5" role="tablist" aria-label="Angle unit">
+        <div id="angleThumb" class="absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-sky-400 transition-transform duration-300 ease-out"></div>
+        <button id="degBtn" onclick="setAngleMode('deg')" class="relative z-10 py-1 text-[10px] font-semibold uppercase transition-colors duration-300 text-slate-950">Deg</button>
+        <button id="radBtn" onclick="setAngleMode('rad')" class="relative z-10 py-1 text-[10px] font-semibold uppercase transition-colors duration-300 text-slate-400">Rad</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-3 pb-3">
+      <!-- Trigonometric + Logarithmic -->
+      <button onclick="unarySin()" class="calc-btn sci-btn">sin</button>
+      <button onclick="unaryCos()" class="calc-btn sci-btn">cos</button>
+      <button onclick="unaryTan()" class="calc-btn sci-btn">tan</button>
+      <button onclick="unaryAsin()" class="calc-btn sci-btn">asin</button>
+
+      <button onclick="unaryAcos()" class="calc-btn sci-btn">acos</button>
+      <button onclick="unaryAtan()" class="calc-btn sci-btn">atan</button>
+      <button onclick="unaryLog()" class="calc-btn sci-btn">log</button>
+      <button onclick="unaryLn()" class="calc-btn sci-btn">ln</button>
+
+      <div class="col-span-4 border-t border-white/5 -my-0.5"></div>
+
+      <!-- Power -->
+      <button onclick="unarySqrt()" class="calc-btn sci-btn">√</button>
+      <button onclick="unarySquare()" class="calc-btn sci-btn">x²</button>
+      <button id="btnPower" onclick="append('^')" class="calc-btn sci-btn">x<sup>y</sup></button>
+      <button onclick="unaryRecip()" class="calc-btn sci-btn">1/x</button>
+
+      <div class="col-span-4 border-t border-white/5 -my-0.5"></div>
+
+      <!-- Constants -->
+      <button onclick="appendConstant('π')" class="calc-btn sci-btn">π</button>
+      <button onclick="appendConstant('e')" class="calc-btn sci-btn">e</button>
+      <button onclick="unaryFactorial()" class="calc-btn sci-btn">x!</button>
+      <button id="sciParenKey" onclick="insertParen()" class="calc-btn sci-btn">( )</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- Normal keypad -->
+  <div class="grid grid-cols-4 gap-3">
+    <button onclick="clearDisplay()" class="calc-btn danger-btn">AC</button>
+    <button onclick="backspace()" class="calc-btn warn-btn">DEL</button>
+    <button onclick="percent()" class="calc-btn op-btn">%</button>
+    <button onclick="append('/')" class="calc-btn op-btn">÷</button>
+
+    <button onclick="append('7')" class="calc-btn num-btn">7</button>
+    <button onclick="append('8')" class="calc-btn num-btn">8</button>
+    <button onclick="append('9')" class="calc-btn num-btn">9</button>
+    <button onclick="append('*')" class="calc-btn op-btn">×</button>
+
+    <button onclick="append('4')" class="calc-btn num-btn">4</button>
+    <button onclick="append('5')" class="calc-btn num-btn">5</button>
+    <button onclick="append('6')" class="calc-btn num-btn">6</button>
+    <button onclick="append('-')" class="calc-btn op-btn">−</button>
+
+    <button onclick="append('1')" class="calc-btn num-btn">1</button>
+    <button onclick="append('2')" class="calc-btn num-btn">2</button>
+    <button onclick="append('3')" class="calc-btn num-btn">3</button>
+    <button onclick="append('+')" class="calc-btn op-btn">+</button>
+
+    <button onclick="append('0')" class="calc-btn num-btn col-span-2">0</button>
+    <button onclick="append('.')" class="calc-btn num-btn">.</button>
+    <button onclick="calculate()" class="calc-btn equal-btn">=</button>
+  </div>
+
+  <!-- Collapsible history -->
+  <div class="mt-4">
+    <button onclick="toggleHistoryPanel()" class="w-full flex items-center justify-between text-left">
+      <span class="text-slate-400 text-xs font-semibold uppercase tracking-wide">History</span>
+      <svg id="historyChevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+    </button>
+    <div id="historyPanel" class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 ease-in-out">
+      <div class="flex justify-end pt-2 pb-1">
+        <button onclick="clearHistory()" class="text-[11px] text-slate-400 hover:text-red-300 transition-colors">Clear all</button>
+      </div>
+      <div id="historyList" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 text-sm"></div>
+    </div>
+  </div>
+
+  <p class="text-center text-slate-500/70 text-[11px] tracking-wide mt-5">Built by AS</p>
+
 </div>
 
 <script>
   const display = document.getElementById('display');
   const history = document.getElementById('history');
+  const historyList = document.getElementById('historyList');
+  const HISTORY_KEY = 'calcHistory';
+  let angleMode = 'deg';
 
   function append(val) {
-    const text = display.innerText;
+    const text = display.value;
     if (text === '0' || text === 'Error') {
       if (val === '.' || isOperator(val)) return;
-      display.innerText = val;
+      display.value = val;
     } else {
       if (val === '.' && lastNumberHasDot()) return;
       if (isOperator(val) && isOperator(text.slice(-1))) return;
-      display.innerText += val;
+      display.value += val;
     }
+  }
+
+  function sanitize(expr) {
+    return expr.replace(/\^/g, '**').replace(/π/g, '(Math.PI)').replace(/e/g, '(Math.E)');
   }
 
   function calculate() {
     try {
-      const expr = display.innerText;
-      const result = eval(expr);
+      const expr = display.value;
+      const result = formatResult(eval(sanitize(expr)));
       if (isNaN(result) || !isFinite(result)) throw "Invalid";
       history.innerText = expr;
-      display.innerText = result;
+      display.value = result;
+      saveHistory(expr, result);
     } catch {
-      display.innerText = 'Error';
+      display.value = 'Error';
     }
   }
 
+  function formatResult(n) {
+    return Math.round(n * 1e10) / 1e10;
+  }
+
+  function percent() {
+    const text = display.value;
+    if (text === '0' || text === 'Error') return;
+    const parts = text.split(/([+\-*/^])/);
+    const lastNum = parseFloat(parts.at(-1));
+    if (isNaN(lastNum)) return;
+    parts[parts.length - 1] = formatResult(lastNum / 100).toString();
+    display.value = parts.join('');
+  }
+
+  function toRad(x) { return angleMode === 'deg' ? x * Math.PI / 180 : x; }
+  function fromRad(x) { return angleMode === 'deg' ? x * 180 / Math.PI : x; }
+
+  function factorial(n) {
+    if (!Number.isInteger(n) || n < 0 || n > 170) throw "Invalid";
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
+  }
+
+  function unaryOp(fn, formatLabel) {
+    try {
+      const expr = display.value;
+      const value = eval(sanitize(expr));
+      const result = formatResult(fn(value));
+      if (isNaN(result) || !isFinite(result)) throw "Invalid";
+      const exprLabel = formatLabel(expr);
+      history.innerText = exprLabel;
+      display.value = result;
+      saveHistory(exprLabel, result);
+    } catch {
+      display.value = 'Error';
+    }
+  }
+
+  function unarySqrt()    { unaryOp(Math.sqrt, e => `√(${e})`); }
+  function unarySquare()  { unaryOp(x => x * x, e => `(${e})²`); }
+  function unaryRecip()   { unaryOp(x => 1 / x, e => `1/(${e})`); }
+  function unaryFactorial() { unaryOp(factorial, e => `(${e})!`); }
+  function unarySin()     { unaryOp(x => Math.sin(toRad(x)), e => `sin(${e})`); }
+  function unaryCos()     { unaryOp(x => Math.cos(toRad(x)), e => `cos(${e})`); }
+  function unaryTan()     { unaryOp(x => Math.tan(toRad(x)), e => `tan(${e})`); }
+  function unaryAsin()    { unaryOp(x => fromRad(Math.asin(x)), e => `asin(${e})`); }
+  function unaryAcos()    { unaryOp(x => fromRad(Math.acos(x)), e => `acos(${e})`); }
+  function unaryAtan()    { unaryOp(x => fromRad(Math.atan(x)), e => `atan(${e})`); }
+  function unaryLog()     { unaryOp(Math.log10, e => `log(${e})`); }
+  function unaryLn()      { unaryOp(Math.log, e => `ln(${e})`); }
+
+  function appendConstant(symbol) {
+    const text = display.value;
+    if (text === '0' || text === 'Error') { display.value = symbol; return; }
+    const last = text.slice(-1);
+    const needsMultiply = /[0-9)πe]/.test(last);
+    display.value = text + (needsMultiply ? '*' : '') + symbol;
+  }
+
+  function insertParen() {
+    const text = display.value;
+    if (text === 'Error') { display.value = '('; return; }
+    const open = (text.match(/\(/g) || []).length;
+    const close = (text.match(/\)/g) || []).length;
+    const last = text.slice(-1);
+    if (open === close) {
+      const needsMultiply = text !== '0' && /[0-9)πe]/.test(last);
+      display.value = (text === '0' ? '' : text) + (needsMultiply ? '*(' : '(');
+    } else {
+      if (isOperator(last) || last === '(') return;
+      display.value = text + ')';
+    }
+  }
+
+  function setMode(mode) {
+    const card = document.getElementById('calculatorCard');
+    const drawer = document.getElementById('sciDrawer');
+    const thumb = document.getElementById('modeThumb');
+    const normalBtn = document.getElementById('modeNormalBtn');
+    const sciBtn = document.getElementById('modeSciBtn');
+    const isSci = mode === 'scientific';
+
+    card.classList.toggle('max-w-sm', !isSci);
+    card.classList.toggle('max-w-[460px]', isSci);
+
+    drawer.classList.toggle('grid-rows-[0fr]', !isSci);
+    drawer.classList.toggle('opacity-0', !isSci);
+    drawer.classList.toggle('grid-rows-[1fr]', isSci);
+    drawer.classList.toggle('opacity-100', isSci);
+
+    thumb.classList.toggle('translate-x-full', isSci);
+
+    normalBtn.classList.toggle('text-slate-950', !isSci);
+    normalBtn.classList.toggle('text-slate-400', isSci);
+    normalBtn.setAttribute('aria-selected', String(!isSci));
+
+    sciBtn.classList.toggle('text-slate-950', isSci);
+    sciBtn.classList.toggle('text-slate-400', !isSci);
+    sciBtn.setAttribute('aria-selected', String(isSci));
+  }
+
+  function setAngleMode(mode) {
+    angleMode = mode;
+    const isRad = mode === 'rad';
+    document.getElementById('angleThumb').classList.toggle('translate-x-full', isRad);
+    document.getElementById('degBtn').classList.toggle('text-slate-950', !isRad);
+    document.getElementById('degBtn').classList.toggle('text-slate-400', isRad);
+    document.getElementById('radBtn').classList.toggle('text-slate-950', isRad);
+    document.getElementById('radBtn').classList.toggle('text-slate-400', !isRad);
+  }
+
+  function toggleHistoryPanel() {
+    const panel = document.getElementById('historyPanel');
+    const chevron = document.getElementById('historyChevron');
+    const isOpen = panel.classList.contains('max-h-64');
+    panel.classList.toggle('max-h-0', isOpen);
+    panel.classList.toggle('opacity-0', isOpen);
+    panel.classList.toggle('max-h-64', !isOpen);
+    panel.classList.toggle('opacity-100', !isOpen);
+    chevron.classList.toggle('rotate-180', !isOpen);
+  }
+
+  function copyValue(text, targetEl) {
+    navigator.clipboard.writeText(String(text)).then(() => showCopiedTooltip(targetEl)).catch(() => {});
+  }
+
+  function showCopiedTooltip(targetEl) {
+    const rect = targetEl.getBoundingClientRect();
+    const tip = document.createElement('div');
+    tip.textContent = 'Copied!';
+    tip.className = 'fixed z-50 -translate-x-1/2 bg-sky-400 text-slate-950 text-xs font-semibold px-2 py-1 rounded-md shadow-lg pointer-events-none opacity-0 transition-opacity duration-200';
+    tip.style.left = `${rect.left + rect.width / 2}px`;
+    tip.style.top = `${rect.top - 32}px`;
+    document.body.appendChild(tip);
+    requestAnimationFrame(() => tip.classList.remove('opacity-0'));
+    setTimeout(() => {
+      tip.classList.add('opacity-0');
+      setTimeout(() => tip.remove(), 200);
+    }, 700);
+  }
+
   function clearDisplay() {
-    display.innerText = '0';
+    display.value = '0';
     history.innerText = '';
   }
 
   function backspace() {
-    const text = display.innerText;
-    display.innerText = text.length > 1 ? text.slice(0, -1) : '0';
+    const text = display.value;
+    display.value = text.length > 1 ? text.slice(0, -1) : '0';
   }
 
   function isOperator(c) {
-    return ['+', '-', '*', '/'].includes(c);
+    return ['+', '-', '*', '/', '^'].includes(c);
   }
 
   function lastNumberHasDot() {
-    const parts = display.innerText.split(/[\+\-\*\/]/);
+    const parts = display.value.split(/[\+\-\*\/\^]/);
     return parts.at(-1).includes('.');
   }
 
   document.addEventListener('keydown', e => {
     const key = e.key;
-    if ("0123456789+-*/.".includes(key)) {
+    if ("0123456789+-*/.^()".includes(key)) {
+      if (key === '(' || key === ')') { insertParen(); flashById('sciParenKey'); return; }
       append(key);
-      highlightKey(key);
+      key === '^' ? flashById('btnPower') : highlightKey(key);
+    }
+    else if (key === '%') {
+      percent();
+      highlightKey('%');
     }
     else if (key === 'Enter') {
       calculate();
@@ -147,24 +340,163 @@
     }
     else if (key === 'Backspace') {
       backspace();
-      highlightKey('⌫');
+      highlightKey('DEL');
     }
     else if (key.toLowerCase() === 'c') {
       clearDisplay();
-      highlightKey('C');
+      highlightKey('AC');
     }
   });
 
   function highlightKey(keyLabel) {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(btn => {
-      if (btn.innerText === keyLabel || (keyLabel === '=' && btn.innerText === '=')) {
-        btn.classList.add('active');
-        setTimeout(() => btn.classList.remove('active'), 150);
+      if (btn.innerText === keyLabel) {
+        btn.classList.add('scale-95', 'ring-2', 'ring-sky-300');
+        setTimeout(() => btn.classList.remove('scale-95', 'ring-2', 'ring-sky-300'), 150);
       }
     });
   }
+
+  function flashById(id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.add('scale-95', 'ring-2', 'ring-sky-300');
+    setTimeout(() => btn.classList.remove('scale-95', 'ring-2', 'ring-sky-300'), 150);
+  }
+
+  function loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveHistory(expr, result) {
+    const entries = loadHistory();
+    entries.unshift({ expr, result });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, 50)));
+    renderHistory();
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const entries = loadHistory();
+    historyList.innerHTML = '';
+    if (entries.length === 0) {
+      historyList.innerHTML = '<div class="text-slate-500 text-xs italic">No history yet</div>';
+      return;
+    }
+    entries.forEach(({ expr, result }) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg px-3 py-1.5 text-slate-300 cursor-pointer transition-colors';
+      row.title = 'Click to copy result';
+      row.innerHTML = `<span class="text-slate-400 truncate mr-2 font-mono">${expr}</span><span class="font-semibold text-sky-400 font-mono">${result}</span>`;
+      row.addEventListener('click', () => copyValue(result, row));
+      historyList.appendChild(row);
+    });
+  }
+
+  renderHistory();
 </script>
+
+<style>
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .calculator {
+    animation: card-in 0.5s ease-out;
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .calc-btn {
+    padding: 1rem 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.25s ease-in-out, background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, color 0.25s ease-in-out;
+  }
+  .calc-btn:hover { transform: translateY(-1px) scale(1.04); }
+  .calc-btn:active { transform: scale(0.96); }
+
+  .result-glow {
+    text-shadow: 0 0 14px rgba(56,189,248,0.35);
+  }
+
+  .num-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #f1f5f9;
+  }
+  .num-btn:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 14px rgba(255,255,255,0.12); }
+
+  .op-btn {
+    background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.3);
+    color: #7dd3fc;
+  }
+  .op-btn:hover { background: #38bdf8; color: #020617; box-shadow: 0 0 16px rgba(56,189,248,0.5); }
+
+  .danger-btn {
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #fca5a5;
+  }
+  .danger-btn:hover { background: #f87171; color: #020617; box-shadow: 0 0 16px rgba(248,113,113,0.5); }
+
+  .warn-btn {
+    background: rgba(251,191,36,0.15);
+    border: 1px solid rgba(251,191,36,0.3);
+    color: #fcd34d;
+  }
+  .warn-btn:hover { background: #fbbf24; color: #020617; box-shadow: 0 0 16px rgba(251,191,36,0.5); }
+
+  .equal-btn {
+    color: #020617;
+    font-weight: 700;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, #38bdf8, #22d3ee);
+    border: 1px solid rgba(125,211,252,0.5);
+    box-shadow: 0 0 18px rgba(56,189,248,0.4);
+  }
+  .equal-btn:hover {
+    animation: equal-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes equal-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(56,189,248,0.55); }
+    50% { box-shadow: 0 0 30px rgba(56,189,248,0.85); }
+  }
+
+  .sci-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #f1f5f9;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+  }
+  .sci-btn:hover { background: rgba(56,189,248,0.85); color: #020617; box-shadow: 0 0 14px rgba(56,189,248,0.45); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .calculator { animation: none; }
+    .equal-btn:hover { animation: none; }
+  }
+</style>
 
 </body>
 </html>
