@@ -1,23 +1,42 @@
-# Calculater
+# Smart Calculator
 
-SCT_WD_1 — A modern, web-based calculator built using HTML, Tailwind CSS, and vanilla JavaScript. It features a sleek dark glassmorphism interface with both a standard and scientific mode.
+A modern, web-based calculator with a sleek dark glassmorphism interface, built with **HTML5**, **Tailwind CSS**, and **vanilla JavaScript** — no frameworks, no build step, no dependencies to install.
 
-## Features
+It combines a clean everyday calculator with a full scientific mode, persistent calculation history, and small thoughtful touches (click-to-copy, keyboard shortcuts, smooth micro-animations) that make it feel like a polished product rather than a toy demo.
 
-- **Modern Tailwind CSS design** — dark glassmorphism aesthetic (frosted glass panels, soft borders, subtle glow) built entirely with Tailwind CSS via CDN, no build step required.
-- **Normal / Scientific modes** — a sliding segmented toggle switches between a compact standard keypad and an expanded scientific keypad, with the calculator smoothly widening in Scientific mode.
-- **Scientific functions**, grouped logically:
-  - Trigonometric: `sin`, `cos`, `tan`, `asin`, `acos`, `atan` (with a Deg/Rad toggle)
-  - Logarithmic: `log`, `ln`
-  - Power: `√`, `x²`, `xʸ`, `1/x`
-  - Constants: `π`, `e`, `x!`, parentheses
-- **Percentage and power operators** (`%`, `xʸ`) alongside the standard `+ − × ÷` operations.
-- **Calculation history** — every result is saved to `localStorage`, so it persists across page refreshes. The history panel is collapsible and can be cleared at any time.
-- **Click-to-copy** — click the result or any history entry to instantly copy it to your clipboard, with a small "Copied!" confirmation.
-- **Full keyboard support** — type numbers and operators, `Enter` to evaluate, `Backspace` to delete, and `C` to clear.
-- **Responsive layout** — scales cleanly across desktop, tablet, and mobile viewports.
-- **"Built by AS" footer** — a subtle signature at the bottom of the calculator.
+> SCT_WD_1
 
-## Usage
+## Key Features
 
-Open `task.1.html` directly in any modern browser — no installation or build step needed.
+- **Tailwind CSS glassmorphism design** — frosted-glass panels, soft borders, and a subtle ambient glow over a dark gradient background, styled entirely with Tailwind CSS via CDN.
+- **Normal / Scientific mode drawer** — a sliding segmented toggle reveals an expanded scientific keypad, grouped logically:
+  - **Trigonometric:** `sin`, `cos`, `tan`, `asin`, `acos`, `atan` (with a Deg/Rad switch)
+  - **Logarithmic:** `log`, `ln`
+  - **Power:** `√`, `x²`, `xʸ`, `1/x`
+  - **Constants:** `π`, `e`, `x!`, parentheses
+- **Full keyboard support** — type numbers and operators directly, `Enter` to evaluate, `Backspace` to delete, `C` to clear.
+- **History tracking with copy-to-clipboard** — every calculation is saved to `localStorage` and survives page refreshes. The history panel is collapsible, and clicking any result (current or past) copies it to your clipboard with a quick "Copied!" confirmation.
+- **Custom footer** — a subtle "Built by AS" signature at the bottom of the calculator.
+- **Responsive layout** — scales cleanly across desktop, tablet, and mobile screens.
+
+## Tech Stack
+
+| Layer      | Technology                        |
+|------------|------------------------------------|
+| Structure  | HTML5                              |
+| Styling    | Tailwind CSS (via CDN)             |
+| Behavior   | JavaScript (ES6+, vanilla)         |
+| Storage    | Browser `localStorage`             |
+
+## How to Run
+
+No installation, build tools, or dependencies are required.
+
+1. Clone or download this repository.
+2. Open `task.1.html` directly in any modern browser (Chrome, Firefox, Edge, Safari).
+
+That's it — the calculator runs entirely client-side.
+
+## Credits
+
+Built by **AS**.
